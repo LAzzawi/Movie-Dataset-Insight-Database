@@ -1,0 +1,31 @@
+kind = "data-app"
+previewPath = "/"
+title = "Movie SQL Analytics"
+version = "1.0.0"
+id = "artifacts/movie-analytics"
+router = "path"
+
+[[integratedSkills]]
+name = "data-visualization"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24520
+
+[services.development]
+run = "pnpm --filter @workspace/movie-analytics run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/movie-analytics", "run", "build" ]
+publicDir = "artifacts/movie-analytics/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24520"
+BASE_PATH = "/"

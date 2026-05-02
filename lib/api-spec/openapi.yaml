@@ -3,13 +3,15 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Movie SQL Analytics API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: movies
+    description: Movie analytics operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,117 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /movies/stats:
+    get:
+      operationId: getMovieStats
+      tags: [movies]
+      summary: Overall dataset statistics (KPIs)
+      description: Returns high-level counts and averages
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MovieStats"
+
+  /movies/genres:
+    get:
+      operationId: getTopGenres
+      tags: [movies]
+      summary: Top genres by content count
+      description: Returns genres ranked by number of titles, using GROUP BY and HAVING
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GenreCount"
+
+  /movies/yearly-trends:
+    get:
+      operationId: getYearlyTrends
+      tags: [movies]
+      summary: Yearly content production trends
+      description: Returns count of movies and TV shows added per release year
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/YearlyTrend"
+
+  /movies/countries:
+    get:
+      operationId: getCountryDistribution
+      tags: [movies]
+      summary: Content distribution by country
+      description: Returns number of titles produced per country, sorted by count
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryCount"
+
+  /movies/rankings:
+    get:
+      operationId: getMovieRankings
+      tags: [movies]
+      summary: Movies ranked within their genre using window functions
+      description: Uses RANK() and ROW_NUMBER() window functions to rank movies by release year within each genre
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RankedMovie"
+
+  /movies/rating-breakdown:
+    get:
+      operationId: getRatingBreakdown
+      tags: [movies]
+      summary: Content count by rating category
+      description: Groups content by audience rating (TV-MA, PG, R, etc.)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RatingCount"
+
+  /movies/top-by-genre:
+    get:
+      operationId: getTopMoviesByGenre
+      tags: [movies]
+      summary: Top titles per genre
+      description: Returns the most recent title in each genre using ROW_NUMBER window function
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TopGenreMovie"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +147,145 @@ components:
       required:
         - status
 
+    MovieStats:
+      type: object
+      properties:
+        totalTitles:
+          type: integer
+        totalMovies:
+          type: integer
+        totalTvShows:
+          type: integer
+        totalCountries:
+          type: integer
+        totalGenres:
+          type: integer
+        oldestYear:
+          type: integer
+        newestYear:
+          type: integer
+      required:
+        - totalTitles
+        - totalMovies
+        - totalTvShows
+        - totalCountries
+        - totalGenres
+        - oldestYear
+        - newestYear
+
+    GenreCount:
+      type: object
+      properties:
+        genre:
+          type: string
+        count:
+          type: integer
+        movieCount:
+          type: integer
+        tvShowCount:
+          type: integer
+      required:
+        - genre
+        - count
+        - movieCount
+        - tvShowCount
+
+    YearlyTrend:
+      type: object
+      properties:
+        year:
+          type: integer
+        total:
+          type: integer
+        movies:
+          type: integer
+        tvShows:
+          type: integer
+      required:
+        - year
+        - total
+        - movies
+        - tvShows
+
+    CountryCount:
+      type: object
+      properties:
+        country:
+          type: string
+        count:
+          type: integer
+        rank:
+          type: integer
+      required:
+        - country
+        - count
+        - rank
+
+    RankedMovie:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        genre:
+          type: string
+        releaseYear:
+          type: integer
+        type:
+          type: string
+        rating:
+          type: string
+        country:
+          type: string
+        rankInGenre:
+          type: integer
+        rowNum:
+          type: integer
+      required:
+        - id
+        - title
+        - genre
+        - releaseYear
+        - type
+        - rating
+        - country
+        - rankInGenre
+        - rowNum
+
+    RatingCount:
+      type: object
+      properties:
+        rating:
+          type: string
+        count:
+          type: integer
+        percentage:
+          type: number
+      required:
+        - rating
+        - count
+        - percentage
+
+    TopGenreMovie:
+      type: object
+      properties:
+        genre:
+          type: string
+        title:
+          type: string
+        releaseYear:
+          type: integer
+        type:
+          type: string
+        rating:
+          type: string
+        country:
+          type: string
+      required:
+        - genre
+        - title
+        - releaseYear
+        - type
+        - rating
+        - country

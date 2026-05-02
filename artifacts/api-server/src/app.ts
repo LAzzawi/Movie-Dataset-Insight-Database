@@ -3,6 +3,14 @@ import cors from "cors";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { seedDatabase } from "./db/seed-movies";
+
+// Seed the SQLite movie database on startup (no-op if already seeded)
+try {
+  seedDatabase();
+} catch (err) {
+  logger.error({ err }, "Failed to seed movie database");
+}
 
 const app: Express = express();
 
