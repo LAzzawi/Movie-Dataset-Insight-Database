@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "kUxfneB_T7kRYszJwa9BF"
+uri = "file://.agents/outputs/movie-analytics-report.md"
+type = "text"
+title = "Movie Dataset Insight Database — Analysis Report"
